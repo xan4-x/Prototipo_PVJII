@@ -20,7 +20,7 @@ function Jugador.new()
     return self
 end
 
-function Jugador:update(dt)
+function Jugador:update(dt, mapa)
     local dx, dy = 0, 0
     if love.keyboard.isDown("w") then dy = -1 end
     if love.keyboard.isDown("s") then dy = 1 end
@@ -33,8 +33,17 @@ function Jugador:update(dt)
         dy = dy / length
     end
 
-    self.x = self.x + dx * self.speed * dt
-    self.y = self.y + dy * self.speed * dt
+    local nextX = self.x + dx * self.speed * dt
+    local nextY = self.y + dy * self.speed * dt
+
+    if not mapa:collides(nextX, self.y, self.radius) then
+        self.x = nextX
+    end
+    if not mapa:collides(self.x, nextY, self.radius) then
+        self.y = nextY
+    end
+
+    -- Límites de la ventana
     self.x = math.max(self.radius, math.min(800 - self.radius, self.x))
     self.y = math.max(self.radius, math.min(600 - self.radius, self.y))
 
@@ -49,11 +58,14 @@ function Jugador:update(dt)
         self.currentFrame = 1 
     end
 
+    -- Actualización de balas con colisión de terreno
     for i = #self.bullets, 1, -1 do
         local b = self.bullets[i]
         b.x = b.x + math.cos(b.angle) * b.speed * dt
         b.y = b.y + math.sin(b.angle) * b.speed * dt
-        if b.x < 0 or b.x > 800 or b.y < 0 or b.y > 600 then
+        
+        -- Si la bala sale de la pantalla o choca contra una roca, se elimina
+        if b.x < 0 or b.x > 800 or b.y < 0 or b.y > 600 or mapa:collides(b.x, b.y, b.radius) then
             table.remove(self.bullets, i)
         end
     end

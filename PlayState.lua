@@ -1,6 +1,6 @@
 local PlayState = {}
 PlayState.__index = PlayState
-
+local Tilemap = require("Tilemap")
 local Enemigo = require("enemigo")
 local Jugador = require("jugador")
 
@@ -9,6 +9,7 @@ function PlayState.new()
 end
 
 function PlayState:enter(params)
+    self.mapa = Tilemap.new(25, 19, 32)
     self.jugador = Jugador.new()
     self.timer = 30
     self.shakeTimer = 0
@@ -47,11 +48,11 @@ function PlayState:update(dt)
     if self.shakeTimer > 0 then self.shakeTimer = self.shakeTimer - dt end
     if math.random() < 0.03 then self:spawnEnemy() end
 
-    self.jugador:update(dt)
+    self.jugador:update(dt, self.mapa)
 
     for i = #self.enemies, 1, -1 do
         local e = self.enemies[i]
-        e:update(dt, self.jugador.x, self.jugador.y)
+        e:update(dt, self.jugador.x, self.jugador.y, self.mapa)
 
         if self:checkCollision(self.jugador.x, self.jugador.y, self.jugador.radius, e.x, e.y, e.radius) then
             self.jugador.hp = self.jugador.hp - 10
@@ -87,6 +88,7 @@ function PlayState:draw()
         love.graphics.clear(0, 0, 0)
     end
 
+    self.mapa:draw()
     self.jugador:draw()
     for _, e in ipairs(self.enemies) do
         e:draw()

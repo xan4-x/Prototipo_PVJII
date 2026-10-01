@@ -22,10 +22,19 @@ function Enemigo.new(x, y)
     return self
 end
 
-function Enemigo:update(dt, playerX, playerY)
+function Enemigo:update(dt, playerX, playerY, mapa)
     local angleToPlayer = math.atan2(playerY - self.y, playerX - self.x)
-    self.x = self.x + math.cos(angleToPlayer) * self.speed * dt
-    self.y = self.y + math.sin(angleToPlayer) * self.speed * dt
+    
+    local nextX = self.x + math.cos(angleToPlayer) * self.speed * dt
+    local nextY = self.y + math.sin(angleToPlayer) * self.speed * dt
+
+    -- Movimiento separado por ejes
+    if not mapa:collides(nextX, self.y, self.radius) then
+        self.x = nextX
+    end
+    if not mapa:collides(self.x, nextY, self.radius) then
+        self.y = nextY
+    end
 
     self.animTimer = self.animTimer + dt
     if self.animTimer > 0.1 then
