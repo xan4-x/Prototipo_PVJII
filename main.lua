@@ -4,6 +4,7 @@ local PlayState = require("PlayState")
 local GameOverState = require("GameOverState")
 
 function love.load()
+    math.randomseed(os.time())
     love.window.setMode(800, 600)
     love.window.setTitle("Escape de la Horda")
     
@@ -26,4 +27,10 @@ end
 
 function love.mousepressed(x, y, button, istouch, presses)
     gStateMachine:mousepressed(x, y, button)
+end
+
+function love.keypressed(key)
+    if key == "escape" then
+        love.event.quit()
+    end
 end
